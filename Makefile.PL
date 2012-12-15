@@ -27,7 +27,7 @@ my %WriteMakefileArgs = (
     "DateTime::Format::Strptime" => 0,
     "Moo" => 0
   },
-  "VERSION" => "0.1",
+  "VERSION" => "0.2",
   "test" => {
     "TESTS" => "t/*.t"
   }

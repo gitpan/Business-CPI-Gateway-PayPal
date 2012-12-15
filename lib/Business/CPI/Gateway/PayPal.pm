@@ -8,6 +8,8 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
+our $VERSION = '0.2'; # VERSION
+
 extends 'Business::CPI::Gateway::Base';
 
 has '+checkout_url' => (
@@ -71,7 +73,7 @@ sub notify {
     my %vars = $ipn->vars;
 
     my $result = {
-        payment_id => int($vars{invoice}),
+        payment_id => $vars{invoice},
         status     => undef,
         amount     => $vars{mc_gross},
         date       => $vars{payment_date},
@@ -203,7 +205,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.1
+version 0.2
 
 =head1 ATTRIBUTES
 
