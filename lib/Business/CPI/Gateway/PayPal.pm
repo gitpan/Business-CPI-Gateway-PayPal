@@ -8,7 +8,7 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.2'; # VERSION
+our $VERSION = '0.3'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -73,10 +73,14 @@ sub notify {
     my %vars = $ipn->vars;
 
     my $result = {
-        payment_id => $vars{invoice},
-        status     => undef,
-        amount     => $vars{mc_gross},
-        date       => $vars{payment_date},
+        payment_id             => $vars{invoice},
+        gateway_transaction_id => $vars{txn_id},
+        exchange_rate          => $vars{exchange_rate},
+        status                 => undef,
+        settle_amount          => $vars{settle_amount},
+        amount                 => $vars{mc_gross},
+        fee                    => $vars{mc_fee},
+        date                   => $vars{payment_date},
     };
 
     if ($ipn->completed) {
@@ -147,11 +151,14 @@ sub get_transaction_details {
     }
 
     return {
-        payment_id  => $details{INVNUM},
-        status      => lc $details{PAYMENTSTATUS},
-        amount      => $details{AMT},
-        date        => $self->date_format->parse_datetime($details{ORDERTIME}),
-        buyer_email => $details{EMAIL},
+        payment_id    => $details{INVNUM},
+        status        => lc $details{PAYMENTSTATUS},
+        amount        => $details{AMT},
+        net_amount    => $details{SETTLEAMT},
+        tax           => $details{TAXAMT},
+        exchange_rate => $details{EXCHANGERATE},
+        date          => $self->date_format->parse_datetime($details{ORDERTIME}),
+        buyer_email   => $details{EMAIL},
     };
 }
 
@@ -205,7 +212,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.2
+version 0.3
 
 =head1 ATTRIBUTES
 
@@ -242,6 +249,10 @@ Get more data about a given transaction.
 =head2 get_hidden_inputs
 
 Get all the inputs to make a checkout form.
+
+=head1 SPONSORED BY
+
+Aware - L< http://www.aware.com.br >
 
 =head1 AUTHOR
 
