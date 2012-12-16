@@ -20,14 +20,14 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Business::CPI::Gateway::PayPal",
   "PREREQ_PM" => {
-    "Business::CPI" => "0.1",
+    "Business::CPI" => "0.2",
     "Business::PayPal::IPN" => 0,
     "Business::PayPal::NVP" => 0,
     "DateTime" => 0,
     "DateTime::Format::Strptime" => 0,
     "Moo" => 0
   },
-  "VERSION" => "0.4",
+  "VERSION" => "0.5",
   "test" => {
     "TESTS" => "t/*.t"
   }

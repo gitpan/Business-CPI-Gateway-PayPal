@@ -8,7 +8,7 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.4'; # VERSION
+our $VERSION = '0.5'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -86,7 +86,7 @@ sub notify {
         gateway_transaction_id => $vars{txn_id},
         exchange_rate          => $vars{exchange_rate},
         status                 => undef,
-        net_amount             => $vars{settle_amount} - $vars{mc_fee},
+        net_amount             => ($vars{settle_amount} || $vars{mc_gross}) - ($vars{mc_fee} || 0),
         amount                 => $vars{mc_gross},
         fee                    => $vars{mc_fee},
         date                   => $vars{payment_date},
@@ -224,7 +224,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.4
+version 0.5
 
 =head1 ATTRIBUTES
 
