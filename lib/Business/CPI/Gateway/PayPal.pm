@@ -8,12 +8,21 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.3'; # VERSION
+our $VERSION = '0.4'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
+has sandbox => (
+    is => 'rw',
+    default => sub { 0 },
+);
+
 has '+checkout_url' => (
-    default => sub { 'https://www.paypal.com/cgi-bin/webscr' },
+    default => sub {
+        my $sandbox = shift->sandbox ? 'sandbox.' : '';
+        return "https://www.${sandbox}paypal.com/cgi-bin/webscr";
+    },
+    lazy => 1,
 );
 
 has '+currency' => (
@@ -77,10 +86,13 @@ sub notify {
         gateway_transaction_id => $vars{txn_id},
         exchange_rate          => $vars{exchange_rate},
         status                 => undef,
-        settle_amount          => $vars{settle_amount},
+        net_amount             => $vars{settle_amount} - $vars{mc_fee},
         amount                 => $vars{mc_gross},
         fee                    => $vars{mc_fee},
         date                   => $vars{payment_date},
+        payer => {
+            name => $vars{first_name} . ' ' . $vars{last_name},
+        }
     };
 
     if ($ipn->completed) {
@@ -212,9 +224,14 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.3
+version 0.4
 
 =head1 ATTRIBUTES
+
+=head2 sandbox
+
+Boolean attribute to set whether it's running on sandbox or not. If it is, it
+will post the form to the sandbox url in PayPal.
 
 =head2 api_username
 
