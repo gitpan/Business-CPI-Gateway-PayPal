@@ -8,7 +8,7 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.5'; # VERSION
+our $VERSION = '0.6'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -52,12 +52,17 @@ has nvp => (
         my $self = shift;
 
         return Business::PayPal::NVP->new(
+            test => {
+                user => $self->api_username,
+                pwd  => $self->api_password,
+                sig  => $self->signature,
+            },
             live => {
                 user => $self->api_username,
                 pwd  => $self->api_password,
                 sig  => $self->signature,
             },
-            branch => 'live'
+            branch => $self->sandbox ? 'test' : 'live'
         );
     }
 );
@@ -75,6 +80,13 @@ has date_format => (
 
 sub notify {
     my ( $self, $req ) = @_;
+
+    if ($self->sandbox) {
+        $Business::PayPal::IPN::GTW = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+    }
+    else {
+        $Business::PayPal::IPN::GTW = 'https://www.paypal.com/cgi-bin/webscr';
+    }
 
     my $ipn = Business::PayPal::IPN->new( query => $req )
         or die Business::PayPal::IPN->error;
@@ -224,7 +236,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.5
+version 0.6
 
 =head1 ATTRIBUTES
 
