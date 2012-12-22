@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 use warnings;
 use strict;
-use autodie;
 use Test::More;
 use FindBin '$Bin';
 use Business::CPI::Gateway::PayPal;

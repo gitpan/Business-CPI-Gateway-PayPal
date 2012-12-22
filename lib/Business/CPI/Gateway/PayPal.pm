@@ -8,7 +8,7 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.6'; # VERSION
+our $VERSION = '0.7'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -236,7 +236,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.6
+version 0.7
 
 =head1 ATTRIBUTES
 
