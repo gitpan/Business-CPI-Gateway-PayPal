@@ -13,7 +13,7 @@ meta-spec:
   version: 1.4
 name: Business-CPI-Gateway-PayPal
 requires:
-  Business::CPI: 0.2
+  Business::CPI: 0.3
   Business::PayPal::IPN: 0
   Business::PayPal::NVP: 0
   DateTime: 0
@@ -21,4 +21,4 @@ requires:
   Moo: 0
 resources:
   repository: git://github.com/andrewalker/p5-business-cpi-gateway-paypal.git
-version: 0.7
+version: 0.8

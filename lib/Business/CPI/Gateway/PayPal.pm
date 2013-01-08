@@ -8,7 +8,7 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.7'; # VERSION
+our $VERSION = '0.8'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -189,6 +189,9 @@ sub get_transaction_details {
 sub get_hidden_inputs {
     my ($self, $info) = @_;
 
+    my $buyer = $info->{buyer};
+    my $cart  = $info->{cart};
+
     my @hidden_inputs = (
         # -- make paypal accept multiple items (cart)
         cmd           => '_ext-enter',
@@ -200,11 +203,41 @@ sub get_hidden_inputs {
         currency_code => $self->currency,
         charset       => $self->form_encoding,
         invoice       => $info->{payment_id},
-        email         => $info->{buyer}->email,
+        email         => $buyer->email,
 
-        # TODO: shipping / handling
-        no_shipping   => 1,
+        no_shipping   => $buyer->address_line1 ? 0 : 1,
     );
+
+    my %buyer_extra = (
+        address_line1    => 'address1',
+        address_line2    => 'address2',
+        address_city     => 'city',
+        address_state    => 'state',
+        address_country  => 'country',
+        address_zip_code => 'zip',
+    );
+
+    for (keys %buyer_extra) {
+        if (my $value = $buyer->$_) {
+            # XXX: find a way to remove this check
+            if ($_ eq 'country') {
+                $value = uc $value;
+            }
+            push @hidden_inputs, ( $buyer_extra{$_} => $value );
+        }
+    }
+
+    my %cart_extra = (
+        discount => 'discount_amount_cart',
+        handling => 'handling_cart',
+        tax      => 'tax_cart',
+    );
+
+    for (keys %cart_extra) {
+        if (my $value = $cart->$_) {
+            push @hidden_inputs, ( $cart_extra{$_} => $value );
+        }
+    }
 
     my $i = 1;
 
@@ -236,7 +269,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.7
+version 0.8
 
 =head1 ATTRIBUTES
 
@@ -289,7 +322,7 @@ André Walker <andre@andrewalker.net>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by André Walker.
+This software is copyright (c) 2013 by André Walker.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
