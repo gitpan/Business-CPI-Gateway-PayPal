@@ -8,7 +8,7 @@ use Business::PayPal::IPN;
 use Business::PayPal::NVP;
 use Carp 'croak';
 
-our $VERSION = '0.8'; # VERSION
+our $VERSION = '0.9'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -240,6 +240,7 @@ sub get_hidden_inputs {
     }
 
     my $i = 1;
+    my $add_weight_unit = 0;
 
     foreach my $item (@{ $info->{items} }) {
         push @hidden_inputs,
@@ -249,7 +250,24 @@ sub get_hidden_inputs {
             "amount_$i"      => $item->price,
             "quantity_$i"    => $item->quantity,
           );
+
+        if (my $weight = $item->weight) {
+            push @hidden_inputs, ( "weight_$i" => $weight );
+            $add_weight_unit = 1;
+        }
+
+        if (my $ship = $item->shipping) {
+            push @hidden_inputs, ( "shipping_$i" => $ship );
+        }
+
+        if (my $ship = $item->shipping_additional) {
+            push @hidden_inputs, ( "shipping2_$i" => $ship );
+        }
         $i++;
+    }
+
+    if ($add_weight_unit) {
+        push @hidden_inputs, ( "weight_unit" => 'kgs' );
     }
 
     return @hidden_inputs;
@@ -269,7 +287,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.8
+version 0.9
 
 =head1 ATTRIBUTES
 
