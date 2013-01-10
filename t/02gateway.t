@@ -41,5 +41,4 @@ is(get_value_for($form, 'quantity_1'),    '1', 'item quantity 1');
 is(get_value_for($form, 'invoice'),       '123', 'invoice');
 is(get_value_for($form, 'email'),         'sender@andrewalker.net', 'sender email');
 
-
 done_testing;

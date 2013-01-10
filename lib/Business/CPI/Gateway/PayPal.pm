@@ -4,11 +4,12 @@ package Business::CPI::Gateway::PayPal;
 use Moo;
 use DateTime;
 use DateTime::Format::Strptime;
-use Business::PayPal::IPN;
+use Business::CPI::Gateway::PayPal::IPN;
 use Business::PayPal::NVP;
+use Data::Dumper;
 use Carp 'croak';
 
-our $VERSION = '0.9'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -81,46 +82,59 @@ has date_format => (
 sub notify {
     my ( $self, $req ) = @_;
 
-    if ($self->sandbox) {
-        $Business::PayPal::IPN::GTW = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
-    }
-    else {
-        $Business::PayPal::IPN::GTW = 'https://www.paypal.com/cgi-bin/webscr';
-    }
+    my $ipn = Business::CPI::Gateway::PayPal::IPN->new(
+        query       => $req,
+        gateway_url => $self->checkout_url,
+    );
 
-    my $ipn = Business::PayPal::IPN->new( query => $req )
-        or die Business::PayPal::IPN->error;
+    croak 'Invalid IPN request' unless $ipn->is_valid;
 
-    my %vars = $ipn->vars;
+    my %vars = %{ $ipn->vars };
 
-    my $result = {
+    $self->log->info("Received notification $vars{ipn_track_id} for transaction $vars{txn_id}.");
+
+    my $r = {
         payment_id             => $vars{invoice},
+        status                 => $self->_interpret_status($vars{payment_status}),
         gateway_transaction_id => $vars{txn_id},
         exchange_rate          => $vars{exchange_rate},
-        status                 => undef,
         net_amount             => ($vars{settle_amount} || $vars{mc_gross}) - ($vars{mc_fee} || 0),
         amount                 => $vars{mc_gross},
         fee                    => $vars{mc_fee},
         date                   => $vars{payment_date},
         payer => {
-            name => $vars{first_name} . ' ' . $vars{last_name},
+            name  => $vars{first_name} . ' ' . $vars{last_name},
+            email => $vars{payer_email},
         }
     };
 
-    if ($ipn->completed) {
-        $result->{status} = 'completed';
-    }
-    elsif (my $reason = $ipn->pending) {
-        $result->{status} = 'processing';
-    }
-    elsif ($ipn->failed || $ipn->denied) {
-        $result->{status} = 'failed';
-    }
-    else {
-        return {}; # unknown status
+    if ($self->log->is_debug) {
+        $self->log->debug("The notification data is:\n" . Dumper($r));
+        $self->log->debug("The request data is:\n" . Dumper($req));
     }
 
-    return $result;
+    return $r;
+}
+
+sub _interpret_status {
+    my ($self, $status) = @_;
+
+    for ($status) {
+        /^Completed$/ ||
+        /^Processed$/ and return 'completed';
+
+        /^Denied$/    ||
+        /^Expired$/   ||
+        /^Failed$/    and return 'failed';
+
+        /^Voided$/    ||
+        /^Refunded$/  ||
+        /^Reversed$/  and return 'refunded';
+
+        /^Pending$/   and return 'processing';
+    }
+
+    return 'unknown';
 }
 
 sub query_transactions {
@@ -287,7 +301,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.9
+version 0.10
 
 =head1 ATTRIBUTES
 
@@ -332,11 +346,15 @@ Get all the inputs to make a checkout form.
 
 =head1 SPONSORED BY
 
-Aware - L< http://www.aware.com.br >
+Aware - L<http://www.aware.com.br>
 
 =head1 AUTHOR
 
 André Walker <andre@andrewalker.net>
+
+=head1 CONTRIBUTOR
+
+Renato CRON <rentocron@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

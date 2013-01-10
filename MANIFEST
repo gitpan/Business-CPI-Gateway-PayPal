@@ -4,7 +4,10 @@ META.yml
 Makefile.PL
 README
 lib/Business/CPI/Gateway/PayPal.pm
+lib/Business/CPI/Gateway/PayPal/IPN.pm
 t/01app.t
 t/02gateway.t
+t/03notifications.t
+t/10ipn.t
 t/release-pod-coverage.t
 t/release-pod-syntax.t
