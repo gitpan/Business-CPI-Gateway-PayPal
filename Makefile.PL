@@ -21,13 +21,13 @@ my %WriteMakefileArgs = (
   "NAME" => "Business::CPI::Gateway::PayPal",
   "PREREQ_PM" => {
     "Business::CPI" => "0.5",
-    "Business::PayPal::IPN" => 0,
     "Business::PayPal::NVP" => 0,
     "DateTime" => 0,
     "DateTime::Format::Strptime" => 0,
+    "LWP::UserAgent" => 0,
     "Moo" => 0
   },
-  "VERSION" => "0.10",
+  "VERSION" => "0.901",
   "test" => {
     "TESTS" => "t/*.t"
   }

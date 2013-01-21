@@ -9,7 +9,7 @@ use Business::PayPal::NVP;
 use Data::Dumper;
 use Carp 'croak';
 
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.901'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 
@@ -150,8 +150,7 @@ sub query_transactions {
     );
 
     if ($search{ACK} ne 'Success') {
-        require Data::Dumper;
-        croak "Error in the query: " . Data::Dumper::Dumper(\%search);
+        croak "Error in the query: " . Dumper(\%search);
     }
 
     while (my ($k, $v) = each %search) {
@@ -184,8 +183,7 @@ sub get_transaction_details {
     );
 
     if ($details{ACK} ne 'Success') {
-        require Data::Dumper;
-        croak "Error in the details fetching: " . Data::Dumper::Dumper(\%details);
+        croak "Error in the details fetching: " . Dumper(\%details);
     }
 
     return {
@@ -301,7 +299,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.10
+version 0.901
 
 =head1 ATTRIBUTES
 
