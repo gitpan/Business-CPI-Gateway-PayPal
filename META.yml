@@ -6,14 +6,21 @@ build_requires: {}
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 5.006, CPAN::Meta::Converter version 2.132510'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Business-CPI-Gateway-PayPal
+provides:
+  Business::CPI::Gateway::PayPal:
+    file: lib/Business/CPI/Gateway/PayPal.pm
+    version: 0.903
+  Business::CPI::Gateway::PayPal::IPN:
+    file: lib/Business/CPI/Gateway/PayPal/IPN.pm
+    version: 0.903
 requires:
-  Business::CPI: 0.903
+  Business::CPI: 0.909
   Business::PayPal::NVP: 0
   DateTime: 0
   DateTime::Format::Strptime: 0
@@ -22,4 +29,4 @@ requires:
   perl: 5.008
 resources:
   repository: git://github.com/andrewalker/p5-business-cpi-gateway-paypal.git
-version: 0.902
+version: 0.903

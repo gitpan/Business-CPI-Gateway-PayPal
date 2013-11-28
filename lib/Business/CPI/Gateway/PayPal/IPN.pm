@@ -3,7 +3,7 @@ package Business::CPI::Gateway::PayPal::IPN;
 use Moo;
 use LWP::UserAgent ();
 
-our $VERSION = '0.902'; # VERSION
+our $VERSION = '0.903'; # TRIAL VERSION
 
 has is_valid => (
     is      => 'lazy',
@@ -23,13 +23,7 @@ has vars => (
     is      => 'lazy',
     default => sub {
         my $self = shift;
-
-        my $query = $self->query;
-        my %vars;
-
-        map { $vars{$_} = $query->param($_) } $query->param;
-
-        return \%vars;
+        return { map { $_ => $self->query->param($_) } $self->query->param };
     },
 );
 
@@ -91,7 +85,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
@@ -99,7 +93,7 @@ Business::CPI::Gateway::PayPal::IPN - Instant Payment Notifications
 
 =head1 VERSION
 
-version 0.902
+version 0.903
 
 =head1 SYNOPSIS
 
@@ -198,10 +192,6 @@ Sherzod B. Ruzmetov E<lt>sherzodr@cpan.orgE<gt> for creating Business::PayPal::I
 =head1 AUTHOR
 
 André Walker <andre@andrewalker.net>
-
-=head1 CONTRIBUTOR
-
-Renato CRON <rentocron@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

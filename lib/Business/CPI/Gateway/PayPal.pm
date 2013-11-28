@@ -9,9 +9,10 @@ use Business::PayPal::NVP;
 use Data::Dumper;
 use Carp 'croak';
 
-our $VERSION = '0.902'; # VERSION
+our $VERSION = '0.903'; # TRIAL VERSION
 
 extends 'Business::CPI::Gateway::Base';
+with 'Business::CPI::Role::Gateway::FormCheckout';
 
 has sandbox => (
     is => 'rw',
@@ -198,91 +199,91 @@ sub get_transaction_details {
     };
 }
 
+sub _checkout_form_main_map {
+    {
+        receiver_email => 'business',
+        currency       => 'currency_code',
+        form_encoding  => 'charset',
+    }
+}
+
+sub _checkout_form_item_map {
+    my ($self, $i) = @_;
+
+    {
+        id          => "item_number_$i",
+        description => "item_name_$i",
+        price       => "amount_$i",
+        quantity    => "quantity_$i",
+        weight      => {
+            name => "weight_$i",
+            coerce => sub { $_[0] }, # think about weight_unit
+        },
+        shipping            => "shipping_$i",
+        shipping_additional => "shipping2_$i",
+    }
+}
+
+sub _checkout_form_buyer_map {
+    {
+        email            => 'email',
+        address_line1    => 'address1',
+        address_line2    => 'address2',
+        address_city     => 'city',
+        address_state    => 'state',
+        address_country  => {
+            name => 'country',
+            coerce => sub { uc $_[0] },
+        },
+        address_zip_code => 'zip',
+    }
+}
+
+sub _checkout_form_cart_map {
+    {
+        discount => 'discount_amount_cart',
+        handling => 'handling_cart',
+        tax      => 'tax_cart',
+    }
+}
+
+around _get_hidden_inputs_for_items => sub {
+    my ($orig, $self, $items) = @_;
+
+    my $add_weight_unit = sub {
+        for (@$items) {
+            return 1 if $_->weight;
+        }
+        return 0;
+    }->();
+
+    my @result = $self->$orig($items);
+
+    if ($add_weight_unit) {
+        push @result, ( "weight_unit" => 'kgs' );
+    }
+
+    return @result;
+};
+
 sub get_hidden_inputs {
     my ($self, $info) = @_;
 
-    my $buyer = $info->{buyer};
-    my $cart  = $info->{cart};
-
-    my @hidden_inputs = (
+    return (
         # -- make paypal accept multiple items (cart)
         cmd           => '_ext-enter',
         redirect_cmd  => '_cart',
         upload        => 1,
         # --
 
-        business      => $self->receiver_email,
-        currency_code => $self->currency,
-        charset       => $self->form_encoding,
         invoice       => $info->{payment_id},
-        email         => $buyer->email,
+        no_shipping   => $info->{buyer}->address_line1 ? 0 : 1,
 
-        no_shipping   => $buyer->address_line1 ? 0 : 1,
+        $self->_get_hidden_inputs_main(),
+        $self->_get_hidden_inputs_for_buyer($info->{buyer}),
+        $self->_get_hidden_inputs_for_items($info->{items}),
+        $self->_get_hidden_inputs_for_cart($info->{cart}),
     );
-
-    my %buyer_extra = (
-        address_line1    => 'address1',
-        address_line2    => 'address2',
-        address_city     => 'city',
-        address_state    => 'state',
-        address_country  => 'country',
-        address_zip_code => 'zip',
-    );
-
-    for (keys %buyer_extra) {
-        if (my $value = $buyer->$_) {
-            # XXX: find a way to remove this check
-            if ($_ eq 'country') {
-                $value = uc $value;
-            }
-            push @hidden_inputs, ( $buyer_extra{$_} => $value );
-        }
-    }
-
-    my %cart_extra = (
-        discount => 'discount_amount_cart',
-        handling => 'handling_cart',
-        tax      => 'tax_cart',
-    );
-
-    for (keys %cart_extra) {
-        if (my $value = $cart->$_) {
-            push @hidden_inputs, ( $cart_extra{$_} => $value );
-        }
-    }
-
-    my $i = 1;
-    my $add_weight_unit = 0;
-
-    foreach my $item (@{ $info->{items} }) {
-        push @hidden_inputs,
-          (
-            "item_number_$i" => $item->id,
-            "item_name_$i"   => $item->description,
-            "amount_$i"      => $item->price,
-            "quantity_$i"    => $item->quantity,
-          );
-
-        if (my $weight = $item->weight) {
-            push @hidden_inputs, ( "weight_$i" => $weight );
-            $add_weight_unit = 1;
-        }
-
-        if (my $ship = $item->shipping) {
-            push @hidden_inputs, ( "shipping_$i" => $ship );
-        }
-
-        if (my $ship = $item->shipping_additional) {
-            push @hidden_inputs, ( "shipping2_$i" => $ship );
-        }
-        $i++;
-    }
-
-    if ($add_weight_unit) {
-        push @hidden_inputs, ( "weight_unit" => 'kgs' );
-    }
-
-    return @hidden_inputs;
 }
 
 1;
@@ -291,7 +292,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
@@ -299,7 +300,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.902
+version 0.903
 
 =head1 ATTRIBUTES
 
@@ -350,9 +351,19 @@ Aware - L<http://www.aware.com.br>
 
 André Walker <andre@andrewalker.net>
 
-=head1 CONTRIBUTOR
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Olaf Alders <olaf@wundersolutions.com>
+
+=item *
 
 Renato CRON <rentocron@cpan.org>
+
+=back
 
 =head1 COPYRIGHT AND LICENSE
 
