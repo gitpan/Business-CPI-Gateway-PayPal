@@ -20,7 +20,7 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Business::CPI::Gateway::PayPal",
   "PREREQ_PM" => {
-    "Business::CPI" => "0.909",
+    "Business::CPI" => "0.910",
     "Business::PayPal::NVP" => 0,
     "DateTime" => 0,
     "DateTime::Format::Strptime" => 0,
@@ -28,7 +28,7 @@ my %WriteMakefileArgs = (
     "Moo" => "1.0"
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "0.903",
+  "VERSION" => "0.904",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -36,7 +36,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Business::CPI" => "0.909",
+  "Business::CPI" => "0.910",
   "Business::PayPal::NVP" => 0,
   "DateTime" => 0,
   "DateTime::Format::Strptime" => 0,

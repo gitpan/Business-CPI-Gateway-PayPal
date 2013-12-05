@@ -3,7 +3,7 @@ package Business::CPI::Gateway::PayPal::IPN;
 use Moo;
 use LWP::UserAgent ();
 
-our $VERSION = '0.903'; # TRIAL VERSION
+our $VERSION = '0.904'; # VERSION
 
 has is_valid => (
     is      => 'lazy',
@@ -93,7 +93,7 @@ Business::CPI::Gateway::PayPal::IPN - Instant Payment Notifications
 
 =head1 VERSION
 
-version 0.903
+version 0.904
 
 =head1 SYNOPSIS
 

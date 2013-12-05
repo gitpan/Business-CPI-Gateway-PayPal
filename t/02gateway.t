@@ -11,7 +11,7 @@ sub get_value_for {
 }
 
 ok(my $cpi = Business::CPI::Gateway::PayPal->new(
-    receiver_email => 'andre@andrewalker.net',
+    receiver_id => 'andre@andrewalker.net',
 ), 'build $cpi');
 
 isa_ok($cpi, 'Business::CPI::Gateway::PayPal');

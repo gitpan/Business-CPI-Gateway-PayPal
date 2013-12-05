@@ -15,12 +15,12 @@ name: Business-CPI-Gateway-PayPal
 provides:
   Business::CPI::Gateway::PayPal:
     file: lib/Business/CPI/Gateway/PayPal.pm
-    version: 0.903
+    version: 0.904
   Business::CPI::Gateway::PayPal::IPN:
     file: lib/Business/CPI/Gateway/PayPal/IPN.pm
-    version: 0.903
+    version: 0.904
 requires:
-  Business::CPI: 0.909
+  Business::CPI: 0.910
   Business::PayPal::NVP: 0
   DateTime: 0
   DateTime::Format::Strptime: 0
@@ -29,4 +29,4 @@ requires:
   perl: 5.008
 resources:
   repository: git://github.com/andrewalker/p5-business-cpi-gateway-paypal.git
-version: 0.903
+version: 0.904

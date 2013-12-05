@@ -9,7 +9,7 @@ use Business::PayPal::NVP;
 use Data::Dumper;
 use Carp 'croak';
 
-our $VERSION = '0.903'; # TRIAL VERSION
+our $VERSION = '0.904'; # VERSION
 
 extends 'Business::CPI::Gateway::Base';
 with 'Business::CPI::Role::Gateway::FormCheckout';
@@ -201,9 +201,9 @@ sub get_transaction_details {
 
 sub _checkout_form_main_map {
     {
-        receiver_email => 'business',
-        currency       => 'currency_code',
-        form_encoding  => 'charset',
+        receiver_id   => 'business',
+        currency      => 'currency_code',
+        form_encoding => 'charset',
     }
 }
 
@@ -300,7 +300,7 @@ Business::CPI::Gateway::PayPal - Business::CPI's PayPal driver
 
 =head1 VERSION
 
-version 0.903
+version 0.904
 
 =head1 ATTRIBUTES
 

@@ -1,5 +1,8 @@
 Revision history for Business::CPI's driver for PayPal.
 
+0.904 2013-12-05T13:48:54Z
+    - Remove receiver_email in favor of receiver_id
+
 0.903 2013-11-28T12:17:05Z
     - Fix incompatibilities with lastest version of Business::CPI
 
